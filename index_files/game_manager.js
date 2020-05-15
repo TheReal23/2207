@@ -44,7 +44,7 @@ GameManager.prototype.addStartTiles = function () {
 GameManager.prototype.addRandomTile = function () {
   if (this.grid.cellsAvailable()) {
 	var value,rank;
-	if(Math.random() < 0.9){
+	if(Math.random() < 0.8){
 		value = 1;
 		rank = 1;
 	}
@@ -89,6 +89,21 @@ GameManager.prototype.moveTile = function (tile, cell) {
   tile.updatePosition(cell);
 };
 
+GameManager.prototype.testFib = function(value) {
+  var fib = [2,1]
+
+  while (value > fib[fib.length-1]) {
+    fib.push(fib[fib.length-1] + fib[fib.length-2])
+  }
+
+  for (var i = 0; i<fib.length && value>=fib[i]; i++) {
+    if (value === fib[i]) {
+     return true;
+    }
+  }
+  return false;
+};
+
 // Move tiles on the grid in the specified direction
 GameManager.prototype.move = function (direction) {
   // 0: up, 1: right, 2:down, 3: left
@@ -116,9 +131,10 @@ GameManager.prototype.move = function (direction) {
         var next      = self.grid.cellContent(positions.next);
 
         // Only one merger per row traversal?
-        if (next && ((next.value==tile.value&& tile.value==1)||next.rank-tile.rank==1||next.rank-tile.rank==-1) && !next.mergedFrom) {
-		  var nrank= (next.value==tile.value&& tile.value==1)? 2:(next.rank>tile.rank? next.rank+1:tile.rank+1);
-          var merged = new Tile(positions.next, tile.value+next.value,nrank);
+        if (next && ((next.value==tile.value&& tile.value==1)||next.rank-tile.rank==1||next.rank-tile.rank==-1) && self.testFib(tile.value + next.value) && !next.mergedFrom) {
+		  var nrank = (next.value==tile.value&& tile.value==1)? 2:(next.rank>tile.rank? next.rank+1:tile.rank+1);
+		 var testFib = (next && self.testFib(tile.value + next.value) && !next.mergedFrom) {
+          var merged = new Tile(positions.next, tile.value + next.value, nrank);
           merged.mergedFrom = [tile, next];
 
           self.grid.insertTile(merged);
@@ -128,10 +144,10 @@ GameManager.prototype.move = function (direction) {
           tile.updatePosition(positions.next);
 
           // Update the score
-          self.score += merged.value ;
+          self.score += Math.round(Math.random() * 2048) + merged.value * merged.value;
 
-          // The mighty 2584 tile
-          if (merged.value === 2584) self.won = true;
+          // The mighty 2207 tile
+          if (merged.value === 2207) self.won = true;
         } else {
           self.moveTile(tile, positions.farthest);
         }
